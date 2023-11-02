@@ -15,46 +15,47 @@ export const App = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    if (searchQ || page !== 1) getPhotos();
+    if (searchQ || page !== 1) {
+      const getPhotos = async () => {
+        setIsLoading(true);
+
+        const pixabayApi = new PixabayApi(12);
+
+        pixabayApi.q = searchQ;
+        pixabayApi.page = page;
+
+        if (!searchQ) {
+          return Notify.failure(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+        }
+
+        try {
+          const { totalHits, hits } = await pixabayApi.getContent();
+
+          if (totalHits === 0) {
+            return Notify.failure(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
+          }
+          Notify.success(`Hooray! We found ${totalHits} images.`);
+          setPhotos(prevState => [...prevState, ...hits]);
+          setTotalPages(Math.ceil(totalHits / 12));
+        } catch (error) {
+          Notify.failure(`${error}`);
+        } finally {
+          setIsLoading(false);
+          setLoadMore(true);
+        }
+      };
+      getPhotos();
+    }
   }, [searchQ, page]);
 
   const handleSearch = searchQ => {
     setPhotos([]);
     setSearchQ(searchQ);
     setPage(1);
-  };
-
-  const getPhotos = async () => {
-    setIsLoading(true);
-
-    const pixabayApi = new PixabayApi(12);
-
-    pixabayApi.q = searchQ;
-    pixabayApi.page = page;
-
-    if (!searchQ) {
-      return Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    }
-
-    try {
-      const { totalHits, hits } = await pixabayApi.getContent();
-
-      if (totalHits === 0) {
-        return Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-      Notify.success(`Hooray! We found ${totalHits} images.`);
-      setPhotos(prevState => [...prevState, ...hits]);
-      setTotalPages(Math.ceil(totalHits / 12));
-    } catch (error) {
-      Notify.failure(`${error}`);
-    } finally {
-      setIsLoading(false);
-      setLoadMore(true);
-    }
   };
 
   const loadMorePhotos = () => {
