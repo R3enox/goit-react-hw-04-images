@@ -1,6 +1,6 @@
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Modal } from 'components/Modal/Modal';
-import { Component } from 'react';
+import { useState } from 'react';
 // import { LoadMoreBtn } from 'components/LodaMoreBtn/LoadMoreBtn';
 // import { Notify } from 'notiflix/build/notiflix-notify-aio';
 // import { PixabayApi } from 'components/helpers/pixabay-api';
@@ -8,12 +8,9 @@ import { Component } from 'react';
 
 import css from './ImageGallery.module.css';
 
-export class ImageGallery extends Component {
-  state = {
-    photos: [],
-    isLoading: false,
-    id: null,
-  };
+export const ImageGallery = ({ photos }) => {
+  const [id, setId] = useState(null);
+  const [isShowModal, setIsShowModal] = useState(false);
 
   // state = {
   //   photos: [],
@@ -38,12 +35,13 @@ export class ImageGallery extends Component {
   //   }
   // }
 
-  showModal = evt => {
-    this.setState({ isShowModal: true, id: evt.currentTarget.id });
+  const showModal = evt => {
+    setIsShowModal(true);
+    setId(evt.currentTarget.id);
   };
 
-  closeModal = () => {
-    this.setState({ isShowModal: false });
+  const closeModal = () => {
+    setIsShowModal(false);
   };
   // loadMore = () => {
   //   const pixabayApi = new PixabayApi(12);
@@ -128,21 +126,10 @@ export class ImageGallery extends Component {
   //   }));
   // };
 
-  render() {
-    return (
-      <ul className={css.gallery}>
-        <ImageGalleryItem
-          photos={this.props.photos}
-          showModal={this.showModal}
-        />
-        {this.state.isShowModal && (
-          <Modal
-            photos={this.props.photos}
-            id={this.state.id}
-            closeModal={this.closeModal}
-          />
-        )}
-      </ul>
-    );
-  }
-}
+  return (
+    <ul className={css.gallery}>
+      <ImageGalleryItem photos={photos} showModal={showModal} />
+      {isShowModal && <Modal photos={photos} id={id} closeModal={closeModal} />}
+    </ul>
+  );
+};
