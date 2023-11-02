@@ -4,6 +4,7 @@ import css from './Modal.module.css';
 export const Modal = ({ photos, id, closeModal }) => {
   useEffect(() => {
     const handlePressESC = evt => {
+      evt.preventDefault();
       if (evt.code === 'Escape') {
         closeModal();
       }
